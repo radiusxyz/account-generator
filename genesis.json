@@ -1,0 +1,60 @@
+{
+  "alloc": {
+    "0000000000000000000000000000000000000000": {
+      "balance": "0x1"
+    },
+    "0000000000000000000000000000000000000001": {
+      "balance": "0x1"
+    },
+    "0x09aC356289291Ef5CAdbA6a3ff828527D9085DCd": {
+      "balance": "20000000000000000000000000000"
+    },
+    "0x42d79193929a857e39F925DDE762e9A27f5dfF09": {
+      "balance": "20000000000000000000000000000"
+    },
+    "0x6094D89cC54fb64F0e8278E64e7a0B8aea0a73bB": {
+      "balance": "20000000000000000000000000000"
+    }
+  },
+  "baseFeePerGas": "0x3b9aca00",
+  "blobGasUsed": null,
+  "coinbase": "0x4200000000000000000000000000000000000011",
+  "config": {
+    "arrowGlacierBlock": 0,
+    "bedrockBlock": 0,
+    "berlinBlock": 0,
+    "byzantiumBlock": 0,
+    "canyonTime": 0,
+    "chainId": 67722,
+    "constantinopleBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "grayGlacierBlock": 0,
+    "homesteadBlock": 0,
+    "istanbulBlock": 0,
+    "londonBlock": 0,
+    "mergeNetsplitBlock": 0,
+    "muirGlacierBlock": 0,
+    "optimism": {
+      "eip1559Denominator": 50,
+      "eip1559DenominatorCanyon": 250,
+      "eip1559Elasticity": 6
+    },
+    "petersburgBlock": 0,
+    "regolithTime": 0,
+    "shanghaiTime": 0,
+    "terminalTotalDifficulty": 0,
+    "terminalTotalDifficultyPassed": true
+  },
+  "difficulty": "0x0",
+  "excessBlobGas": null,
+  "extraData": "0x424544524f434b",
+  "gasLimit": "0x1c9c380",
+  "gasUsed": "0x0",
+  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "nonce": "0x0",
+  "number": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "timestamp": "0x6764db84"
+}
