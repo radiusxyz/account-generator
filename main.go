@@ -4,16 +4,57 @@ import (
 	"bufio"
 	"crypto/ecdsa"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func Generate(account_count int, accountFilePath string, privateKeyFilePath string) {
+func main() {
+	ParseFlag()
+	genesisFilePath := GetFlag("genesis")
+	accountCount := GetFlag("account-count")
+	balance := GetFlag("balance")
+	count, err := strconv.Atoi(accountCount)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	accountFilePath := "./accounts"
+	privateKeyFilePath := "./private-keys"
+	Generate(count, accountFilePath, privateKeyFilePath)
+
+	// genesis.json 파일 로드
+	genesisData := loadGenesis(genesisFilePath)
+	// accounts 파일에서 계정 로드
+	accounts := loadAccounts(accountFilePath)
+	// alloc에 계정 추가
+	addAccountsToGenesis(genesisData, accounts, balance)
+	// 수정된 genesis.json 파일 저장
+	saveGenesis(genesisFilePath, genesisData)
+
+	fmt.Println("Updated genesis.json with accounts.")
+
+}
+
+func ParseFlag() {
+	flag.String("genesis", "", "genesis file")
+	flag.String("account-count", "", "account count")
+	flag.String("balance", "", "balance")
+	flag.Parse()
+}
+
+func GetFlag(paramName string) string {
+	return flag.Lookup(paramName).Value.(flag.Getter).Get().(string)
+}
+
+func Generate(accountCount int, accountFilePath string, privateKeyFilePath string) {
 	accountFile, err := os.Create(accountFilePath)
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +67,7 @@ func Generate(account_count int, accountFilePath string, privateKeyFilePath stri
 	defer accountFile.Close()
 	defer privateKeyFile.Close()
 
-	for i := 0; i < account_count; i++ {
+	for i := 0; i < accountCount; i++ {
 		privateKey, err := crypto.GenerateKey()
 		if err != nil {
 			log.Fatal(err)
@@ -42,14 +83,14 @@ func Generate(account_count int, accountFilePath string, privateKeyFilePath stri
 
 		address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 
-		if i <= account_count-1 {
+		if i <= accountCount-1 {
 			_, err = accountFile.WriteString(fmt.Sprintf("%s\n", address))
 		}
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if i <= account_count-1 {
+		if i <= accountCount-1 {
 			_, err = privateKeyFile.WriteString(fmt.Sprintf("%s\n", privateKeyHex))
 		}
 
@@ -58,31 +99,7 @@ func Generate(account_count int, accountFilePath string, privateKeyFilePath stri
 		}
 	}
 
-	fmt.Println(account_count, "addresses and private key generated and saved")
-}
-
-func main() {
-	accountFilePath := "./accounts"
-	privateKeyFilePath := "./private-keys"
-	genesisFilePath := "./genesis.json"
-	Generate(3, accountFilePath, privateKeyFilePath)
-
-	// genesis.json 파일 로드
-	genesisData := loadGenesis(genesisFilePath)
-	fmt.Println(genesisData)
-	fmt.Println("111111-===-----------==-=-===-=-")
-	// accounts 파일에서 계정 로드
-	accounts := loadAccounts(accountFilePath)
-	fmt.Println(accounts)
-	fmt.Println("222222-===-----------==-=-===-=-")
-	// alloc에 계정 추가
-	addAccountsToGenesis(genesisData, accounts)
-	fmt.Println(genesisData)
-	// 수정된 genesis.json 파일 저장
-	saveGenesis(genesisFilePath, genesisData)
-
-	fmt.Println("Updated genesis.json with accounts.")
-
+	fmt.Println(accountCount, "addresses and private key generated and saved")
 }
 
 // genesis.json 파일 로드
@@ -108,24 +125,6 @@ func loadGenesis(filePath string) map[string]interface{} {
 
 // accounts 파일 로드
 func loadAccounts(filePath string) []string {
-	//file, err := os.Open(filePath)
-	//if err != nil {
-	//	log.Fatalf("Failed to open accounts file: %v", err)
-	//}
-	//defer file.Close()
-	//
-	//data, err := ioutil.ReadAll(file)
-	//if err != nil {
-	//	log.Fatalf("Failed to read accounts file: %v", err)
-	//}
-	//
-	//// accounts 파일의 각 라인을 슬라이스로 반환
-	//var accounts []string
-	//for _, line := range string(data) {
-	//	if line > 0 {
-	//		accounts = append(accounts, string(line))
-	//	}
-	//}
 	var accounts []string
 	// 읽을 파일 열기
 	file, err := os.Open(filePath)
@@ -139,7 +138,6 @@ func loadAccounts(filePath string) []string {
 	for scanner.Scan() {
 		line := scanner.Text() // 현재 줄의 텍스트 가져오기
 		accounts = append(accounts, line)
-		fmt.Println(line)
 	}
 
 	// 읽는 중 오류가 발생했는지 확인
@@ -150,7 +148,7 @@ func loadAccounts(filePath string) []string {
 }
 
 // genesis.json의 alloc에 계정 추가
-func addAccountsToGenesis(genesis map[string]interface{}, accounts []string) {
+func addAccountsToGenesis(genesis map[string]interface{}, accounts []string, balance string) {
 	// alloc을 가져옴
 	alloc, ok := genesis["alloc"].(map[string]interface{})
 	if !ok {
@@ -160,7 +158,7 @@ func addAccountsToGenesis(genesis map[string]interface{}, accounts []string) {
 	// 각 계정을 alloc에 추가
 	for _, account := range accounts {
 		alloc[account] = map[string]interface{}{
-			"balance": "20000000000000000000000000000", // 기본 잔액
+			"balance": balance, // 기본 잔액
 		}
 	}
 }
